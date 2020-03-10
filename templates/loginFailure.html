@@ -7,18 +7,18 @@ Login Failure page
 
 {% block styles %}
 {{super()}}
-<link rel="stylesheet" href="{{url_for('.static', filename='home.css')}}">
+<link rel="stylesheet" href="{{url_for('.static', filename='signin.css')}}">
 {% endblock %}
 
 {% block content %}
     <div class="container">
 
       
-        <h1>Home Page</h1>
+        <h1>Invalid username or password</h1>
 
     </div> <!-- /container -->
   
-   
-  {% include 'footer.html' %}
+     
+    {% include 'footer.html' %}
 
 {% endblock %}

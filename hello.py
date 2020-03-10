@@ -1,107 +1,101 @@
-from flask import Flask
-from flask import Flask, render_template, redirect, url_for, request, escape, flash, session
-import sqlite3
-
 from flask import Flask, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
-
+from flask_wtf import FlaskForm 
+from wtforms import StringField, PasswordField, BooleanField
+from wtforms.validators import InputRequired, Email, Length
+from flask_sqlalchemy  import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
-from wtforms import StringField, PasswordField, BooleanField
-from wtforms.validators import InputRequired, Email, Length
+import os
 
-from flask_wtf import FlaskForm 
-from flask_sqlalchemy  import SQLAlchemy
+basedir = os.path.abspath(os.path.dirname(__file__))
+print(basedir)
+
 
 app = Flask(__name__)
-#global loginflag
-loginflag=False
-app.secret_key = "adsadasd"
-#app.database="sample.db"
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////D:/GDrive/Assignments/movieRatingSystem/movieRatingSystem/sample.db'
+app.config['SECRET_KEY'] = 'Thisissupposedtobesecret!'
 
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////D:\\GDrive\\Assignments\\movieRatingSystem\\movieRatingSystem\\sample.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'app.sqlite3')
 
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////sample.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////new.db'
+app.config['SQLALCHEMY_ECHO'] = True
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+
+
 
 bootstrap = Bootstrap(app)
 db = SQLAlchemy(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 
 
-@app.route('/')
-def index():
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(15), unique=True)
+    email = db.Column(db.String(50), unique=True)
+    password = db.Column(db.String(80))
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+class RegisterForm(FlaskForm):
+    email = StringField('email', validators=[InputRequired(), Email(message='Invalid email'), Length(max=50)])
+    username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
+    password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
+
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    form = RegisterForm()
+
+    if form.validate_on_submit():
+        hashed_password = generate_password_hash(form.password.data, method='sha256')
+        new_user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+        return render_template('signupSuccess.html')
+        #return '<h1>New user has been created!</h1>'
+        #return '<h1>' + form.username.data + ' ' + form.email.data + ' ' + form.password.data + '</h1>'
+
+    return render_template('signup.html', form=form)
+
+
+
+class LoginForm(FlaskForm):
+    username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
+    password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
+    remember = BooleanField('remember me')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user:
+            if check_password_hash(user.password, form.password.data):
+                login_user(user, remember=form.remember.data)
+                return redirect(url_for('home'))
+
+        #return '<h1>Invalid username or password</h1>'
+        return render_template('loginFailure.html')
+        #return '<h1>' + form.username.data + ' ' + form.password.data + '</h1>'
+
+    return render_template('login.html', form=form)
+
+
+@app.route('/home')
+def home():
 	#return '<h1>Hello there u!</h1>'
 	return render_template('home.html')  # sample template rendering
 
 
-# calluing url http://127.0.0.1:5000/welcome?name=noname
-@app.route('/welcome')
-def welcome():
-	name = request.args.get("name", "World")
-	#return f'Hello, {escape(name)}!'
-	return render_template('welcome.html')  # sample template rendering
+@app.route('/')
+def home2():
+	#return '<h1>Hello there u!</h1>'
+	return render_template('home.html')  # sample template rendering
 
-
-@app.route('/template')
-def template():
-	return render_template('welcome.html')  # sample template rendering
-
-
-# @app.route('/home')
-# def home():
-# 	return render_template('home.html')  # sample template rendering
-
-
-@app.route('/signup')
-def home():
-	return render_template('signup.html')  # sample template rendering
-
-
-# Route for handling the login page logic
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-	error = None
-	c=connect_db()
-	#session['logged_in']=False
-	
-	flash('hello test123')
-	#if "session['logged_in']" not in locals():
-	#if session['logged_in'] == True:
-	global loginflag
-	if loginflag==True:
-		return redirect(url_for('home'))
-	if request.method == 'POST':
-		if request.form['username'] != 'admin' or request.form['password'] != 'admin':
-			error = 'Invalid Credentials. Please try again.'
-			#return "hi"
-		else:
-			session['logged_in'] = True
-			#return redirect(url_for('/home'))
-			loginflag=True
-			return redirect(url_for('home'))
-			#return "hi"
-	c.close()
-	return render_template('login.html', error=error)
-
-
-@app.route('/logout')
-def logout():
-	session.pop('logged_in', None)
-	global loginflag
-	loginflag=False
-	return redirect(url_for('welcome'))
-
-def connect_db():
-	#sqlite3.Connection
-	return sqlite3.Connection(app.database)
-
-@app.route('/types')
-def types():
-	user_ag=request.headers.get('User-Agent')
-	return '<p>your agent is {}</p>'.format(user_ag)
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
