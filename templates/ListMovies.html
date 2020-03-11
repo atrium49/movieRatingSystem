@@ -1,0 +1,55 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+List All movie page
+{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('.static', filename='home.css')}}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+
+    <h1>
+        List All Movies page
+    </h1>
+    {% if current_user.is_authenticated %}
+    <h4> Hi, You are logged in as : {{ current_user.username }}</h4>
+    {% else %}
+    <a href="/login">why aren't you logged in?</a>
+    {% endif %}
+
+</div> <!-- /container -->
+
+
+
+            <div class="container">
+                <table style=" border: 1px solid black">
+                    <th style=" border: 1px solid black" >&nbsp;Movie ID&nbsp;</th>&nbsp;&nbsp;
+                    <th style=" border: 1px solid black">&nbsp;MovieTitle &nbsp;</th>&nbsp;&nbsp;
+                    <th style=" border: 1px solid black">&nbsp;MovieDescription&nbsp;</th>&nbsp;&nbsp;
+                    <th style=" border: 1px solid black">&nbsp;MovieYear&nbsp;</th>&nbsp;&nbsp;
+                    {% for movie in movieTable %}
+                <tr style=" border: 1px solid black">
+                    {% if movie.id %}<td >{{ movie.id }}</li>{% endif %}&nbsp;
+                    {% if movie.MovieTitle %}<td >{{ movie.MovieTitle }}</li>{% endif %}&nbsp;
+                    {% if movie.MovieDescription %}<td >{{ movie.MovieDescription }}</li>{% endif %}&nbsp;
+                    {% if movie.MovieYear %}<td >{{ movie.MovieYear }}</li>{% endif %}&nbsp;
+                                    
+                </trstyle=" border: 1px solid black">
+                {% endfor %}
+            </table>
+
+            </div>
+        
+
+</div>
+
+
+{% include 'footer.html' %}
+
+{% endblock %}

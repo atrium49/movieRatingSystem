@@ -136,4 +136,15 @@ def AddMovie():
         return render_template('movieAddSuccess.html')    
     return render_template('AddMovie.html', form=form)
 
+#ListMovies
 
+
+@app.route('/ListMovies', endpoint='ListMovies', methods=['GET', 'POST'])
+@login_required
+def ListMovies():
+    # logout_user()
+    #return redirect(url_for('AddMovie.html'))
+    movieTable = MovieTable.query.all()
+
+    
+    return render_template('ListMovies.html', movieTable=movieTable)
