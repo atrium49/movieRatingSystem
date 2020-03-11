@@ -175,3 +175,17 @@ def RemoveMovies():
     return render_template('RemoveMovies.html', movieTable=movieTable,form=form)
 
 
+#ListAllUsers
+
+@app.route('/ListAllUsers', endpoint='ListAllUsers', methods=['GET', 'POST'])
+@login_required
+def ListAllUsers():
+    # logout_user()
+    #return redirect(url_for('AddMovie.html'))
+    #form = delMovieForm()
+    userTable = User.query.all()
+    print("#########form Started#########")
+    
+    
+    return render_template('ListAllUsers.html', userTable=userTable)
+

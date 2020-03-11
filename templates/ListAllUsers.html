@@ -1,0 +1,57 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+List All Users page
+{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('.static', filename='home.css')}}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+
+    <h1>
+        List All Users page
+    </h1>
+    <br>
+    <br>
+    {% if current_user.is_authenticated %}
+    <h4> Hi, You are logged in as : {{ current_user.username }}</h4>
+    {% else %}
+    <a href="/login">why aren't you logged in?</a>
+    {% endif %}
+    <br>
+
+</div> <!-- /container -->
+
+
+            <div class="container">
+                <table style=" border: 1px solid black">
+                    <th style=" border: 1px solid black" >&nbsp;User ID&nbsp;</th>&nbsp;&nbsp;
+                    <th style=" border: 1px solid black">&nbsp;UserName &nbsp;</th>&nbsp;&nbsp;
+                    <th style=" border: 1px solid black">&nbsp;EmailAddress&nbsp;</th>&nbsp;&nbsp;
+                    
+                    {% for user in userTable %}
+                <tr style=" border: 1px solid black">
+                    {% if user.id %}<td >{{ user.id }}</li>{% endif %}&nbsp;
+                    {% if user.username %}<td >{{ user.username }}</li>{% endif %}&nbsp;
+                    {% if user.email %}<td >{{ user.email }}</li>{% endif %}&nbsp;
+                    
+                                    
+                </trstyle=" border: 1px solid black">
+                {% endfor %}
+            </table>
+
+            </div>
+        
+
+</div>
+
+
+{% include 'footer.html' %}
+
+{% endblock %}
