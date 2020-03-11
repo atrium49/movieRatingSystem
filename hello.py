@@ -148,3 +148,30 @@ def ListMovies():
 
     
     return render_template('ListMovies.html', movieTable=movieTable)
+
+
+#RemoveMovies
+
+class delMovieForm(FlaskForm):
+    options=StringField('options')
+
+@app.route('/RemoveMovies', endpoint='RemoveMovies', methods=['GET', 'POST'])
+@login_required
+def RemoveMovies():
+    # logout_user()
+    #return redirect(url_for('AddMovie.html'))
+    form = delMovieForm()
+    movieTable = MovieTable.query.all()
+    print("#########form Started#########")
+    if form.validate_on_submit():
+        print("#########form validated#########")
+        MovieTable.query.filter(MovieTable.id == form.options.data).delete()
+        db.session.commit()
+        return render_template('deleteMovieSuccess.html')    
+
+
+
+    
+    return render_template('RemoveMovies.html', movieTable=movieTable,form=form)
+
+
