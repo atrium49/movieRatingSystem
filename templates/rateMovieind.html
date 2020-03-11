@@ -36,6 +36,7 @@ Rate Movies page
       <table style=" border: 1px solid black">
           <th style=" border: 1px solid black" >&nbsp;Button&nbsp;</th>&nbsp;&nbsp;
           <th style=" border: 1px solid black" >&nbsp;Movie ID&nbsp;</th>&nbsp;&nbsp;
+          <th style=" border: 1px solid black">&nbsp;Poster &nbsp;</th>&nbsp;&nbsp;
           <th style=" border: 1px solid black">&nbsp;MovieTitle &nbsp;</th>&nbsp;&nbsp;
           <th style=" border: 1px solid black">&nbsp;MovieDescription&nbsp;</th>&nbsp;&nbsp;
           <th style=" border: 1px solid black">&nbsp;MovieYear&nbsp;</th>&nbsp;&nbsp;
@@ -46,6 +47,10 @@ Rate Movies page
           {% if movie.id %}
           <td><input type="radio" name="options" id="option1" value="{{ movie.id }}" checked>  </input></td>
           <td >{{ movie.id }}</li>{% endif %}&nbsp;
+            {% if movie.URL %}<td >
+                <img src="{{url_for('static', filename=movie.URL)}}" />
+            </li>{% endif %}&nbsp;
+
           {% if movie.MovieTitle %}<td >{{ movie.MovieTitle }}</li>{% endif %}&nbsp;
           {% if movie.MovieDescription %}<td >{{ movie.MovieDescription }}</li>{% endif %}&nbsp;
           {% if movie.MovieYear %}<td >{{ movie.MovieYear }}</li>{% endif %}&nbsp;

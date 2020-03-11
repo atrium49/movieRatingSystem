@@ -1,6 +1,9 @@
 from flask import Flask, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm 
+from flask_wtf.file import FileField
+from werkzeug import secure_filename
+
 from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import InputRequired, Email, Length
 from flask_sqlalchemy  import SQLAlchemy
@@ -114,12 +117,16 @@ class NewMovie(FlaskForm):
     MovieTitle = StringField('MovieTitle', validators=[InputRequired(), Length(max=500)])
     MovieDescription = StringField('MovieDescription', validators=[InputRequired(), Length(min=4, max=1500)])
     MovieYear = StringField('MovieYear', validators=[InputRequired(), Length(min=4, max=4)])
+    #image = FileField('Image', validators=[FileRequired(), FileAllowed(images, 'Images only!')])
+    file = FileField()
+
 
 class MovieTable( db.Model):
     id = db.Column(db.Integer, primary_key=True)
     MovieTitle = db.Column(db.String(500), unique=True)
     MovieDescription = db.Column(db.String(1500))
     MovieYear = db.Column(db.String(4))
+    URL=db.Column(db.String(5000))
 
 @app.route('/AddMovie', endpoint='AddMovie', methods=['GET', 'POST'])
 @login_required
@@ -127,10 +134,18 @@ def AddMovie():
     # logout_user()
     #return redirect(url_for('AddMovie.html'))
     form = NewMovie()
+    #f = request.files['image']
+    #f = form.photo.data
+    #f.save(secure_filename(f.filename))
+    
+    
 
     if form.validate_on_submit():
         #hashed_password = generate_password_hash(form.password.data, method='sha256')
-        new_movie = MovieTable(MovieTitle=form.MovieTitle.data, MovieDescription=form.MovieDescription.data, MovieYear=form.MovieYear.data,)
+        filename = secure_filename(form.file.data.filename)
+        form.file.data.save('static/' + filename)
+        url =  filename
+        new_movie = MovieTable(MovieTitle=form.MovieTitle.data, MovieDescription=form.MovieDescription.data, MovieYear=form.MovieYear.data,URL=url)
         db.session.add(new_movie)
         db.session.commit()
         return render_template('movieAddSuccess.html')    

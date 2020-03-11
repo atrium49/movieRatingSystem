@@ -25,12 +25,14 @@ Add Movie Page
 </br>
     <div class="container">
 
-        <form class="form-signin" method="POST" action="/AddMovie">
+        <form class="form-signin" method="POST" action="/AddMovie" enctype="multipart/form-data">
           <h2 class="form-signin-heading">Add new Movie</h2>
           {{ form.hidden_tag() }}
           {{ wtf.form_field(form.MovieTitle) }}
           {{ wtf.form_field(form.MovieDescription) }}
           {{ wtf.form_field(form.MovieYear) }}
+          {{ form.file }}
+          <!-- <input type="file" id="myFile" name="filename"> -->
           <button class="btn btn-lg btn-primary btn-block" type="submit">Add Movie</button>
         </form>
       
