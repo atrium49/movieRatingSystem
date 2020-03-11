@@ -189,3 +189,72 @@ def ListAllUsers():
     
     return render_template('ListAllUsers.html', userTable=userTable)
 
+#RateMovies
+
+
+class rateMovieForm(FlaskForm):
+    options=StringField('options')
+
+@app.route('/RateMovies', endpoint='RateMovies', methods=['GET', 'POST'])
+@login_required
+def RateMovies():
+    movieTable = MovieTable.query.all()
+    form = rateMovieForm()
+    if form.validate_on_submit():
+        
+        movie2=MovieTable.query.filter(MovieTable.id == form.options.data)
+        #db.session.commit()
+        print("######### Movie form validated#########")
+        print(movie2)
+        return render_template('rateMovieind.html',movie2=movie2,form=form)    
+
+    
+    return render_template('RateMovies.html', movieTable=movieTable,form=form)
+
+
+#RateMoviesind
+
+
+class addRatingForm(FlaskForm):
+    options=StringField('options')
+    rating=StringField('options')
+    review=StringField('options')
+
+class addRatingTable( db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    Movieid = db.Column(db.String(500), unique=True)
+    rating = db.Column(db.String(10))
+    review = db.Column(db.String(1500))
+    ratedBy = db.Column(db.String(1500))
+
+
+@app.route('/RateMoviesind', endpoint='RateMoviesind', methods=['GET', 'POST'])
+@login_required
+def RateMoviesind():
+    form=addRatingForm()
+    
+
+    if form.validate_on_submit():
+        newRating = addRatingTable(Movieid=form.options.data, rating=form.rating.data, review=form.review.data,ratedBy=current_user.username)
+        db.session.add(newRating)
+        db.session.commit()
+        return render_template('RatingAddSuccess.html')    
+
+
+
+    
+    #    return render_template('SubmitRating.html', movieTable=movieTable,form=form)
+    return render_template('RateMovies.html')
+
+
+@app.route('/listRatings', endpoint='listRatings', methods=['GET', 'POST'])
+@login_required
+def ListAllUsers():
+    # logout_user()
+    #return redirect(url_for('AddMovie.html'))
+    #form = delMovieForm()
+    rate = addRatingTable.query.all()
+    print("#########form Started#########")
+    
+    
+    return render_template('listRatings.html', rate=rate)
