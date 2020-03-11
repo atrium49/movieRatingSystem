@@ -2,7 +2,7 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block title %}
-Login Failure page
+Add Movie Page
 {% endblock %}
 
 {% block styles %}
@@ -14,7 +14,7 @@ Login Failure page
     <div class="container">
 
       
-        <h1>Home Page</h1>
+        <h1>Add Movie Page</h1>
         {% if current_user.is_authenticated %}
   <h4> Hi, You are logged in as : {{ current_user.username }}</h4>
 {% else %}
@@ -22,6 +22,21 @@ Login Failure page
 {% endif %}
 
     </div> <!-- /container -->
+</br>
+    <div class="container">
+
+        <form class="form-signin" method="POST" action="/AddMovie">
+          <h2 class="form-signin-heading">Add new Movie</h2>
+          {{ form.hidden_tag() }}
+          {{ wtf.form_field(form.MovieTitle) }}
+          {{ wtf.form_field(form.MovieDescription) }}
+          {{ wtf.form_field(form.MovieYear) }}
+          <button class="btn btn-lg btn-primary btn-block" type="submit">Add Movie</button>
+        </form>
+      
+      </div> <!-- /container -->
+      
+         
   
    
   {% include 'footer.html' %}

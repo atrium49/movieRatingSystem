@@ -89,13 +89,51 @@ def login():
 
 
 @app.route('/home')
+# @login_required
 def home():
 	#return '<h1>Hello there u!</h1>'
 	return render_template('home.html')  # sample template rendering
 
 
 @app.route('/')
+# @login_required
 def home2():
 	#return '<h1>Hello there u!</h1>'
 	return render_template('home.html')  # sample template rendering
+
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
+
+
+class NewMovie(FlaskForm):
+    MovieTitle = StringField('MovieTitle', validators=[InputRequired(), Length(max=500)])
+    MovieDescription = StringField('MovieDescription', validators=[InputRequired(), Length(min=4, max=1500)])
+    MovieYear = StringField('MovieYear', validators=[InputRequired(), Length(min=4, max=4)])
+
+class MovieTable( db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    MovieTitle = db.Column(db.String(500), unique=True)
+    MovieDescription = db.Column(db.String(1500))
+    MovieYear = db.Column(db.String(4))
+
+@app.route('/AddMovie', endpoint='AddMovie', methods=['GET', 'POST'])
+@login_required
+def AddMovie():
+    # logout_user()
+    #return redirect(url_for('AddMovie.html'))
+    form = NewMovie()
+
+    if form.validate_on_submit():
+        #hashed_password = generate_password_hash(form.password.data, method='sha256')
+        new_movie = MovieTable(MovieTitle=form.MovieTitle.data, MovieDescription=form.MovieDescription.data, MovieYear=form.MovieYear.data,)
+        db.session.add(new_movie)
+        db.session.commit()
+        return render_template('movieAddSuccess.html')    
+    return render_template('AddMovie.html', form=form)
+
 
